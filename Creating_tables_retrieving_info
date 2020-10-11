@@ -1,0 +1,341 @@
+drop table IF EXISTS PREREQUISITE
+drop table IF EXISTS GRADE_REPORT
+drop table IF EXISTS SECTION
+drop table IF EXISTS COURSE
+drop table IF EXISTS STUDENT
+
+--Task 1
+create table STUDENT (
+  SNAME varchar (15) NOT NULL,
+  SNUMBER int NOT NULL, 
+  CLASS int NOT NULL,
+  MAJOR varchar(15) NOT NULL
+)
+
+INSERT INTO STUDENT VALUES( 'Smith', 17, '1', 'CS')
+INSERT INTO STUDENT VALUES( 'Brown', 8, '2', 'CS')
+
+SELECT * FROM STUDENT;
+
+create table COURSE (
+  CNAME varchar (25) NOT NULL,
+  CNUMBER varchar(15) NOT NULL, 
+  CREDIT int NOT NULL,
+  DEPARTMENT varchar(15) NOT NULL
+)
+
+INSERT INTO COURSE VALUES( 'Intro to Computer Science', 'CS1310', 4, 'CS')
+INSERT INTO COURSE VALUES( 'Data Structures', 'CS3320', 4, 'CS')
+INSERT INTO COURSE VALUES( 'Discrete Mathematics', 'MATH2410', 3, 'MATH')
+INSERT INTO COURSE VALUES( 'Database', 'CS3380', 3, 'CS')
+
+SELECT * FROM COURSE;
+
+create table SECTION (
+  SIDENTIFIER int NOT NULL,
+  CNUMBER varchar(15) NOT NULL, 
+  SEMESTER varchar(10) check(SEMESTER IN ('Fall','Spring')),
+  SYEAR int NOT NULL,
+  INSTRUCTOR varchar(15) NOT NULL
+)
+
+INSERT INTO SECTION VALUES( 85, 'MATH2410', 'Fall',07, 'King')
+INSERT INTO SECTION VALUES( 92, 'CS1310', 'Fall',07, 'Anderson')
+INSERT INTO SECTION VALUES( 102, 'CS3320', 'Spring',08, 'Knuth')
+INSERT INTO SECTION VALUES( 112, 'MATH2410', 'Fall',08, 'Chang')
+INSERT INTO SECTION VALUES( 119, 'CS1310', 'Fall',08, 'Anderson')
+INSERT INTO SECTION VALUES( 135, 'CS3380', 'Fall',08, 'Stone')
+
+SELECT * FROM SECTION;
+
+create table GRADE_REPORT(
+SNUMBER int NOT NULL,
+SIDENTIFIER int NOT NULL,
+GRADE char NOT NULL
+)
+
+INSERT INTO GRADE_REPORT VALUES( 17, 112, 'B')
+INSERT INTO GRADE_REPORT VALUES( 17, 119, 'C')
+INSERT INTO GRADE_REPORT VALUES( 8, 85, 'A')
+INSERT INTO GRADE_REPORT VALUES( 8, 92, 'A')
+INSERT INTO GRADE_REPORT VALUES( 8, 102, 'B')
+INSERT INTO GRADE_REPORT VALUES( 8, 135, 'A')
+
+SELECT * FROM GRADE_REPORT;
+
+create table PREREQUISITE(
+COURSE_NUMBER varchar(15) NOT NULL,
+PREREQUISITE_NUMBER varchar(15) NOT NULL
+)
+INSERT INTO PREREQUISITE VALUES('CS3380', 'CS3320')
+INSERT INTO PREREQUISITE VALUES('CS3380', 'MATH2410')
+INSERT INTO PREREQUISITE VALUES('CS3320', 'CS1310')
+
+SELECT * FROM PREREQUISITE;
+
+--Task 2
+--a
+SELECT SNAME FROM STUDENT WHERE MAJOR = 'CS'
+--b
+SELECT DISTINCT CNAME FROM COURSE, SECTION WHERE COURSE.CNUMBER = SECTION.CNUMBER AND (SECTION.SYEAR= 08 OR SECTION.SYEAR = 07) AND SECTION.INSTRUCTOR = 'King'
+--c
+SELECT SECTION.CNUMBER, SECTION.SEMESTER, SECTION.SYEAR, count(GRADE_REPORT.SIDENTIFIER) 'Nr of students' From SECTION, GRADE_REPORT WHERE SECTION.INSTRUCTOR = 'King' AND GRADE_REPORT.SIDENTIFIER= SECTION.SIDENTIFIER GROUP BY SECTION.CNUMBER, SECTION.SEMESTER, SECTION.SYEAR
+--d
+SELECT STUDENT.SNAME, COURSE.CNAME, COURSE.CNUMBER, COURSE.CREDIT, SECTION.SEMESTER, SECTION.SYEAR, GRADE_REPORT.GRADE
+FROM STUDENT, COURSE, SECTION, GRADE_REPORT
+WHERE STUDENT.CLASS = 4 AND STUDENT.MAJOR = 'CS'AND
+STUDENT.SNUMBER = GRADE_REPORT.SNUMBER AND 
+GRADE_REPORT.SIDENTIFIER = SECTION.SIDENTIFIER AND
+SECTION.CNUMBER = COURSE.CNUMBER
+--Task 3
+--a
+INSERT INTO STUDENT VALUES ('Jhonson', 25, '1', 'Math')
+SELECT * FROM STUDENT
+--b
+UPDATE STUDENT
+SET CLASS = 2
+WHERE SNAME ='Smith';
+SELECT * FROM STUDENT
+--c
+INSERT INTO COURSE VALUES( 'Knowledge Engineering', 'CS4390', 3, 'CS')
+SELECT * FROM COURSE
+--d
+DELETE FROM STUDENT WHERE SNAME = 'Smith' AND SNUMBER = 17
+ 
+--Task 4
+--a
+SELECT SNAME, Major
+FROM STUDENT s 
+JOIN GRADE_REPORT g
+  ON s.SNUMBER = g.SNUMBER
+GROUP BY SNAME, Major
+HAVING COUNT(CASE WHEN g.Grade <> 'A' THEN 1 END) = 0 
+--b
+SELECT SNAME, Major
+FROM STUDENT s 
+JOIN GRADE_REPORT g
+  ON s.SNUMBER = g.SNUMBER
+GROUP BY SNAME, Major
+HAVING COUNT(CASE WHEN g.Grade = 'A' THEN 1 END) = 0 
+
+
+
+
+
+
+
+create table EMPLOYEE
+( 
+EMP_ID char(8)not null,
+LASTNAME varchar (15)not null,
+FIRSTNAME varchar (15)not null,
+SALARY money, 
+E_ADDRESS varchar (30),
+SEX char check(SEX IN ('F','M')),
+BDATE datetime, 
+SUPERVISOR_ID char(8)null,
+DNUMBER int not null,
+primary key (EMP_ID),
+foreign key (SUPERVISOR_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEPARTMENT
+(
+DNUMBER int not null,
+DNAME varchar (15)not null,
+MANAGER_ID char(8) not null,
+MNG_STARTDATE datetime, 
+primary key (DNUMBER),
+foreign key (MANAGER_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEP_LOCATION
+(
+DNUMBER int not null,
+LOCATIONS varchar (15) not null,
+primary key(DNUMBER, LOCATIONS),
+foreign key (DNUMBER)references DEPARTMENT (DNUMBER)
+)
+
+create table PROJECT
+(
+PNUMBER int not null,
+PNAME varchar (30) not null,
+PLOCATION varchar (15),
+DNUMBER int not null,
+primary key (PNUMBER),
+foreign key (DNUMBER)references DEPARTMENT (DNUMBER)
+)
+
+create table WORKS_ON
+(
+EMP_ID char(8)not null,
+PNUMBER int not null,
+HOURS decimal(3,1) not null,
+primary key(EMP_ID,PNUMBER),
+foreign key (PNUMBER)references PROJECT(PNUMBER),
+foreign key (EMP_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEPENDENTS 
+(
+EMP_ID char(8) not null,
+DNAME varchar(15) not null,
+SEX char,
+BDATE datetime,
+RELATIOSHIP varchar(10),
+primary key(EMP_ID,DNAME),
+foreign key (EMP_ID)references EMPLOYEE(EMP_ID)
+)
+
+/*alter table EMPLOYEE
+add foreign key (DNUMBER)references DEPARTMENT(DNUMBER);*/
+
+insert into employee values ( 'B276548','Dimou','Giorgos',2000,'Araxthou 4', 'M', '10/08/1956', null, 1)
+insert into employee values ( 'S676548','Pappas','Kwstas',1000,'Filellinon 10 Giannena','M', '06/11/1970',null, 2)
+insert into employee values ( 'A276654','Kwsta','Maria', 1500, 'Benizelou 2 Preveza','F', '02/07/1970' ,null, 3)
+insert into employee values ( 'AE342134','Andreou','Antonis', 2000, 'Georgiou Pappa 12 Arta','M', '02/12/1977',null, 4)
+insert into employee values ( 'G276548','Georgiou','Giorgos', 2000, 'Metamorfosis 12 Giannena','M', '2/12/1969',null, 5)
+insert into employee values ( 'E375898','Mitsios','Andreas', 900, 'Kalitheas 12 Giannena','M', '5/9/1959', 'B276548', 1)
+insert into employee values ( 'A475637','Floros','Dimitris', 800, 'Araxthou 80 Arta','M', '1/1/1964', 'B276548', 1)
+insert into employee values ( 'K876543','Florou','Amalia', 800, 'Araxthou 80 Arta','F', '09/10/1987', 'S676548', 2)
+insert into employee values ( 'X674532','Dara','Stauroula', 950, 'Bas Konstantinou 2 Preveza','F', '08/11/1984', 'S676548', 2)
+insert into employee values ( 'H576543','Karras',' Andreas', 900, 'Kalitheas 12  Giannena','M', '6/08/1980', 'A276654', 3)
+insert into employee values ( 'K475637','Petrou','Dimitris', 800, 'Araxthou 80 Arta','M', '1/1/1964', 'A276654', 3)
+insert into employee values ( 'H576544','Toli','Amalia', 800, 'Araxthou 80 Arta','F', '09/10/1977', 'AE342134', 4)
+insert into employee values ( 'J674532','Foti','Stauroula', 950, 'Bas Konstantinou 2 Preveza ','F', '08/11/1964', 'G276548', 5)
+
+insert into DEPARTMENT values ( 1, 'Management','B276548','2/05/1982')
+insert into DEPARTMENT values ( 2, 'Polisewn','S676548','04/02/1983')
+insert into DEPARTMENT values ( 3, 'Logistiriou','A276654', '3/08/1984')
+insert into DEPARTMENT values ( 4, 'Marketing','AE342134', '09/25/1990')
+insert into DEPARTMENT values ( 5, 'Ereunas', 'G276548', '02/3/1993')
+
+insert into DEP_LOCATION values ( 1, 'Arta')
+insert into DEP_LOCATION values ( 1, 'Giannena')
+insert into DEP_LOCATION values ( 2, 'Arta')
+insert into DEP_LOCATION values ( 2, 'Preveza')
+insert into DEP_LOCATION values ( 3, 'Giannena')
+insert into DEP_LOCATION values ( 4, 'Arta')
+insert into DEP_LOCATION values ( 4, 'Giannena')
+insert into DEP_LOCATION values ( 5, 'Preveza')
+insert into DEP_LOCATION values ( 5, 'Giannena')
+
+insert into PROJECT values (1, 'Apografi proiontwn','Giannena',2 )
+insert into PROJECT values (2, 'Ereuna agoras','Giannena',5 )
+insert into PROJECT values (3, 'Proothisi proiontwn','Arta',4 )
+insert into PROJECT values (4, 'Proothisi proiontwn','Giannena',4 )
+insert into PROJECT values (5, 'Nees Agores','Giannena',1 )
+insert into PROJECT values (6, 'Epektasi','Giannena',1 )
+insert into PROJECT values (7, 'Diafimisi proiontwn','Giannena',4)
+insert into PROJECT values (8, 'Enimerosi proiontwn','Arta',1)
+
+insert into WORKS_ON values ( 'B276548',5,30)
+insert into WORKS_ON values ( 'B276548',6,25)
+insert into WORKS_ON values ( 'S676548',3,10)
+insert into WORKS_ON values ( 'S676548',4,10)
+insert into WORKS_ON values ( 'A276654',1,30)
+insert into WORKS_ON values ( 'A276654',8,5)
+insert into WORKS_ON values ( 'E375898',3,20)
+insert into WORKS_ON values ( 'E375898',5,15)
+insert into WORKS_ON values ( 'K876543',4,10)
+insert into WORKS_ON values ( 'X674532',3,10)
+insert into WORKS_ON values ( 'H576543',8,10)
+insert into WORKS_ON values ( 'H576543',4,10)
+insert into WORKS_ON values ( 'H576543',1,5)
+insert into WORKS_ON values ( 'H576543',5,5)
+insert into WORKS_ON values ( 'J674532',6,5)
+
+insert into DEPENDENTS values ( 'B276548','Maria','F','04/08/1989','kori')
+insert into DEPENDENTS values ( 'B276548','Kwstas','M','04/08/1989','gios')
+insert into DEPENDENTS values ( 'AE342134','Aliki','F','02/09/1990','kori')
+insert into DEPENDENTS values ( 'AE342134','Maria','F','01/24/1988','kori')
+insert into DEPENDENTS values ( 'AE342134','Amalia','F','12/12/1988','kori')
+insert into DEPENDENTS values ( 'E375898','Giorgos','M','11/08/1989','gios')
+insert into DEPENDENTS values ( 'G276548','Dimitris','M','2/24/1990','gios')
+insert into DEPENDENTS values ( 'X674532','Zinovia','F','2/17/1970','aderfi')
+
+SELECT * FROM EMPLOYEE
+SELECT * FROM DEPARTMENT
+SELECT * FROM DEP_LOCATION
+SELECT * FROM PROJECT
+SELECT * FROM WORKS_ON
+SELECT * FROM DEPENDENTS 
+
+--Task 5
+--a
+SELECT DNAME, COUNT(*) NrOfEmp
+FROM DEPARTMENT, EMPLOYEE
+WHERE DEPARTMENT.DNUMBER = EMPLOYEE.DNUMBER
+GROUP BY DNAME
+HAVING AVG(SALARY) >30000
+--b
+SELECT DNAME, COUNT(*) NrOfEmp
+FROM DEPARTMENT, EMPLOYEE
+WHERE DEPARTMENT.DNUMBER = EMPLOYEE.DNUMBER AND EMPLOYEE.SEX = 'M'
+GROUP BY DNAME
+HAVING AVG(SALARY) >30000
+
+--Task 6
+--a
+SELECT FIRSTNAME, LASTNAME
+FROM EMPLOYEE
+WHERE DNUMBER IN (SELECT DNUMBER
+				FROM EMPLOYEE
+				WHERE SALARY = (SELECT MAX(SALARY)
+				FROM EMPLOYEE))
+
+--b
+SELECT FIRSTNAME FROM EMPLOYEE
+WHERE SUPERVISOR_ID IN (SELECT EMP_ID FROM EMPLOYEE
+						WHERE SUPERVISOR_ID ='888665555')
+
+--c
+SELECT FIRSTNAME FROM EMPLOYEE
+WHERE (SALARY-10000) > (SELECT MIN(SALARY) FROM EMPLOYEE)
+
+--Task 7
+--a
+CREATE VIEW DEPVIEWS 
+AS
+SELECT FIRSTNAME, DNAME, SALARY
+FROM DEPARTMENT, EMPLOYEE
+WHERE MANAGER_ID = EMP_ID
+
+SELECT * FROM DEPVIEWS
+--b
+CREATE VIEW RESEARCHDEP
+AS
+SELECT E.FIRSTNAME, E.SALARY, N.FIRSTNAME AS SUPERVISOR_NAME
+FROM DEPARTMENT, EMPLOYEE E
+JOIN EMPLOYEE N ON E.SUPERVISOR_ID = N.EMP_ID
+WHERE DEPARTMENT.DNAME = 'Polisewn' AND DEPARTMENT.DNUMBER = E.DNUMBER
+UNION 
+SELECT FIRSTNAME, SALARY, 'HE_IS_SUPERVISOR' FROM EMPLOYEE, DEPARTMENT
+WHERE DEPARTMENT.DNAME = 'Polisewn' AND DEPARTMENT.MANAGER_ID = EMPLOYEE.EMP_ID
+
+SELECT * FROM RESEARCHDEP
+
+--c
+CREATE VIEW PROJECTWORK
+AS
+SELECT SUM(HOURS) AS TOTALh, COUNT(*) EMPLOYEES, PROJECT.PNAME, DEPARTMENT.DNAME
+FROM WORKS_ON, PROJECT, DEPARTMENT
+WHERE WORKS_ON.PNUMBER = PROJECT.PNUMBER AND PROJECT.DNUMBER = DEPARTMENT.DNUMBER
+GROUP BY PROJECT.PNAME, DEPARTMENT.DNAME
+
+SELECT * FROM PROJECTWORK
+
+--d
+CREATE VIEW PROJECTWORK2
+AS
+SELECT SUM(HOURS) AS TOTALh, COUNT(*) EMPLOYEES, PROJECT.PNAME, DEPARTMENT.DNAME
+FROM WORKS_ON, PROJECT, DEPARTMENT
+WHERE WORKS_ON.PNUMBER = PROJECT.PNUMBER AND PROJECT.DNUMBER = DEPARTMENT.DNUMBER
+GROUP BY PROJECT.PNAME, DEPARTMENT.DNAME
+HAVING COUNT(*) > 1
+
+SELECT * FROM PROJECTWORK2
+
+--Task8
+ 
