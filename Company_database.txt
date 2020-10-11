@@ -1,0 +1,70 @@
+create database COMPANY
+go
+use COMPANY
+go
+create table EMPLOYEE
+( 
+EMP_ID char(8)not null,
+LASTNAME varchar (15)not null,
+FIRSTNAME varchar (15)not null,
+SALARY money, 
+E_ADDRESS varchar (30),
+SEX char check(SEX IN ('F','M')),
+BDATE datetime, 
+SUPERVISOR_ID char(8)null,
+DNUMBER int not null,
+primary key (EMP_ID),
+foreign key (SUPERVISOR_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEPARTMENT
+(
+DNUMBER int not null,
+DNAME varchar (15)not null,
+MANAGER_ID char(8) not null,
+MNG_STARTDATE datetime, 
+primary key (DNUMBER),
+foreign key (MANAGER_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEP_LOCATION
+(
+DNUMBER int not null,
+LOCATIONS varchar (15) not null,
+primary key(DNUMBER, LOCATIONS),
+foreign key (DNUMBER)references DEPARTMENT (DNUMBER)
+)
+
+create table PROJECT
+(
+PNUMBER int not null,
+PNAME varchar (30) not null,
+PLOCATION varchar (15),
+DNUMBER int not null,
+primary key (PNUMBER),
+foreign key (DNUMBER)references DEPARTMENT (DNUMBER)
+)
+
+create table WORKS_ON
+(
+EMP_ID char(8)not null,
+PNUMBER int not null,
+HOURS decimal(3,1) not null,
+primary key(EMP_ID,PNUMBER),
+foreign key (PNUMBER)references PROJECT(PNUMBER),
+foreign key (EMP_ID)references EMPLOYEE(EMP_ID)
+)
+
+create table DEPENDENTS 
+(
+EMP_ID char(8) not null,
+DNAME varchar(15) not null,
+SEX char,
+BDATE datetime,
+RELATIOSHIP varchar(10),
+primary key(EMP_ID,DNAME),
+foreign key (EMP_ID)references EMPLOYEE(EMP_ID)
+)
+
+/*alter table EMPLOYEE
+add foreign key (DNUMBER)references DEPARTMENT(DNUMBER);*/
