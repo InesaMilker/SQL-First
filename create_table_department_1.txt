@@ -1,0 +1,6 @@
+create table DEPARTMENT (
+  DNUMBER int,
+  DNAME varchar (15),
+  MANAGER_ID char(8),
+  MNG_STARTDATE datetime 
+)

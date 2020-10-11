@@ -1,0 +1,14 @@
+--
+-- Create table EMPLOYEE without any constraint
+--
+create table EMPLOYEE ( 
+  EMP_ID char(8),
+  LASTNAME varchar (15),
+  FIRSTNAME varchar (15),
+  SALARY money, 
+  E_ADDRESS varchar (30),
+  SEX char,
+  BDATE datetime, 
+  SUPERVISOR_ID char(8),
+  DNUMBER int,
+);

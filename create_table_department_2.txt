@@ -1,0 +1,8 @@
+create table DEPARTMENT (
+  DNUMBER int not null,
+  DNAME varchar (15)not null,
+  MANAGER_ID char(8) not null,
+  MNG_STARTDATE datetime, 
+  primary key (DNUMBER),
+  foreign key (MANAGER_ID)references EMPLOYEE(EMP_ID)
+)

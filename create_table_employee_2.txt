@@ -1,0 +1,15 @@
+
+
+create table EMPLOYEE ( 
+  EMP_ID char(8)  not null,
+  LASTNAME varchar (15)not null,
+  FIRSTNAME varchar (15)not null,
+  SALARY money, 
+  E_ADDRESS varchar (30),
+  SEX char check(SEX IN ('F','M')),
+  BDATE datetime, 
+  SUPERVISOR_ID char(8)null,
+  DNUMBER int not null,
+  primary key (EMP_ID),
+  foreign key (SUPERVISOR_ID) references EMPLOYEE(EMP_ID)
+)

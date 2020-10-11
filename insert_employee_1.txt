@@ -1,0 +1,21 @@
+insert into EMPLOYEE (
+  EMP_ID,
+  LASTNAME,
+  FIRSTNAME,
+  SALARY, 
+  E_ADDRESS,
+  SEX,
+  BDATE, 
+  SUPERVISOR_ID,
+  DNUMBER,
+) values (
+  'A276654 ', 
+  'Kwsta', 
+  'Maria', 
+  1500, 
+  'Benizelou 2 Preveza', 
+  'F', 
+  '1970-02-07', 
+  NULL, 
+  3
+) ;
